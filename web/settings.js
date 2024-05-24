@@ -11,13 +11,13 @@ function load_settings() {
     var password = lines[1].split("=")[1];
     var channel = lines[2].split("=")[1];
     var autorun = lines[3].split("=")[1];
-    var wifiMode = lines[4].split("=")[1];
+    var wifimode = lines[4].split("=")[1];
 
     E("ssid").innerHTML = ssid;
     E("password").innerHTML = password;
     E("channel").innerHTML = channel;
     E("autorun").innerHTML = autorun;
-    E("edit_wifi_mode").value = wifiMode;
+    E("edit_wifi_mode").value = wifimode;
   });
 }
 

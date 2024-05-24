@@ -22,7 +22,7 @@ namespace settings {
         char password[65];
         char channel[5];
         char autorun[65];
-        char wifiMode[5];
+        char wifimode[5];
     } settings_t;
 
     settings_t data;
@@ -92,7 +92,7 @@ namespace settings {
     }
 
     const char* getWiFiMode() {
-        return data.wifiMode;
+        return data.wifimode;
     }
 
     int getChannelNum() {
@@ -145,10 +145,10 @@ namespace settings {
         }
     }
 
-    void setWiFiMode(const char* wifiMode) {
-        if (wifiMode && ((strcmp(wifiMode, "ap") == 0) || (strcmp(wifiMode, "sta") == 0))) {
-            memset(data.wifiMode, 0, 5);
-            strncpy(data.wifiMode, wifiMode, 4);
+    void setWiFiMode(const char* wifimode) {
+        if (wifimode && ((strcmp(wifimode, "ap") == 0) || (strcmp(wifimode, "sta") == 0))) {
+            memset(data.wifimode, 0, 5);
+            strncpy(data.wifimode, wifimode, 4);
 
             save();
         }

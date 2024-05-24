@@ -30,5 +30,5 @@ namespace settings {
     void setPassword(const char* password);
     void setChannel(const char* channel);
     void setAutorun(const char* autorun);
-    void setWiFiMode(const char* wifiMode);
+    void setWiFiMode(const char* wifimode);
 }
