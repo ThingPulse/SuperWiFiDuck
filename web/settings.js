@@ -11,11 +11,13 @@ function load_settings() {
     var password = lines[1].split("=")[1];
     var channel = lines[2].split("=")[1];
     var autorun = lines[3].split("=")[1];
+    var wifiMode = lines[4].split("=")[1];
 
     E("ssid").innerHTML = ssid;
     E("password").innerHTML = password;
     E("channel").innerHTML = channel;
     E("autorun").innerHTML = autorun;
+    E("edit_wifi_mode").value = wifiMode;
   });
 }
 
@@ -67,6 +69,14 @@ window.addEventListener("load", function() {
         alert("ERROR: Invalid channel number");
       }
     }
+  };
+
+  E("edit_wifi_mode").onchange = function(event) {
+    var newmode = event.target.value;
+
+    ws_send("set wifi_mode \"" + newmode + "\"", function(msg) {
+      load_settings();
+    });
   };
 
   E("disable_autorun").onclick = function() {

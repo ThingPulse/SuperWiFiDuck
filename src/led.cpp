@@ -56,8 +56,6 @@ namespace led {
     void begin() {
         FastLED.addLeds<WS2812B, FASTLED_PIN, GRB>(leds, FASTLED_NUM);
         Serial.println("LEDs initialized");
-        leds[0] = CRGB::Green;
-        FastLED.show();
     }
 
     void setColor(int r, int g, int b) {

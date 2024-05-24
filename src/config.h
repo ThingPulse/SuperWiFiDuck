@@ -32,6 +32,7 @@
 #define WIFI_SSID "wifiduck"
 #define WIFI_PASSWORD "wifiduck"
 #define WIFI_CHANNEL "1"
+#define WIFI_MODE "ap"
 
 #define HOSTNAME "wifiduck"
 #define URL "wifi.duck"

@@ -22,6 +22,7 @@ namespace settings {
         char password[65];
         char channel[5];
         char autorun[65];
+        char wifiMode[5];
     } settings_t;
 
     settings_t data;
@@ -48,6 +49,7 @@ namespace settings {
         setSSID(WIFI_SSID);
         setPassword(WIFI_PASSWORD);
         setChannel(WIFI_CHANNEL);
+        setChannel(WIFI_MODE);
     }
 
     void save() {
@@ -70,6 +72,9 @@ namespace settings {
         s += "autorun=";
         s += getAutorun();
         s += "\n";
+        s += "wifi_mode=";
+        s += getWiFiMode();
+        s += "\n";
 
         return s;
     }
@@ -84,6 +89,10 @@ namespace settings {
 
     const char* getChannel() {
         return data.channel;
+    }
+
+    const char* getWiFiMode() {
+        return data.wifiMode;
     }
 
     int getChannelNum() {
@@ -104,6 +113,8 @@ namespace settings {
             setChannel(value);
         } else if (strcmp(name, "autorun") == 0) {
             setAutorun(value);
+        } else if (strcmp(name, "wifi_mode") == 0) {
+            setWiFiMode(value);
         }
     }
 
@@ -129,6 +140,15 @@ namespace settings {
         if (channel && ((strcmp(channel, "auto") == 0) || ((atoi(channel) >= 1) && (atoi(channel) <= 13)))) {
             memset(data.channel, 0, 5);
             strncpy(data.channel, channel, 4);
+
+            save();
+        }
+    }
+
+    void setWiFiMode(const char* wifiMode) {
+        if (wifiMode && ((strcmp(wifiMode, "ap") == 0) || (strcmp(wifiMode, "sta") == 0))) {
+            memset(data.wifiMode, 0, 5);
+            strncpy(data.wifiMode, wifiMode, 4);
 
             save();
         }

@@ -81,10 +81,21 @@ namespace webserver {
         // Access Point
         WiFi.hostname(HOSTNAME);
 
-        // WiFi.mode(WIFI_AP_STA);
-        WiFi.softAP(settings::getSSID(), settings::getPassword(), settings::getChannelNum());
-        WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
-        debugf("Started Access Point \"%s\":\"%s\"\n", settings::getSSID(), settings::getPassword());
+        if (strcmp(settings::getWiFiMode(), "ap") == 0) {
+            WiFi.mode(WIFI_AP);
+            WiFi.softAP(settings::getSSID(), settings::getPassword(), settings::getChannelNum());
+            WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+            debugf("Started Access Point \"%s\":\"%s\"\n", settings::getSSID(), settings::getPassword());
+        } else {
+            WiFi.mode(WIFI_STA);
+            WiFi.begin(settings::getSSID(), settings::getPassword());
+            debugf("Connecting to \"%s\":\"%s\"\n", settings::getSSID(), settings::getPassword());
+            while (WiFi.status() != WL_CONNECTED) {
+                debugf(".");
+                delay(500);
+            }
+            debugf("Connected to \"%s\" with IP %s\n", settings::getSSID(), WiFi.localIP().toString().c_str());
+        }
 
         // Webserver
         server.on("/", HTTP_GET, [](AsyncWebServerRequest* request) {

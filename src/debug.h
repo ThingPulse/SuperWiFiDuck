@@ -10,7 +10,8 @@
 #ifdef ENABLE_DEBUG
 
 #define debug_init() DEBUG_PORT.begin(DEBUG_BAUD);\
-    DEBUG_PORT.setTimeout(200);
+    DEBUG_PORT.setTimeout(200);\
+    while (!DEBUG_PORT) {}
 
 #define debug(...) DEBUG_PORT.print(__VA_ARGS__)
 #define debugln(...) DEBUG_PORT.println(__VA_ARGS__)
