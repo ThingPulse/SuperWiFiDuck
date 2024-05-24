@@ -23,6 +23,7 @@ namespace settings {
         char channel[5];
         char autorun[65];
         char wifimode[5];
+        char buttonscript[65];
     } settings_t;
 
     settings_t data;
@@ -41,6 +42,7 @@ namespace settings {
         if (data.password[64] != 0) setPassword(WIFI_PASSWORD);
         if (data.channel[4] != 0) setChannel(WIFI_CHANNEL);
         if (data.autorun[64] != 0) setAutorun("");
+        if (data.buttonscript[64] != 0) setButtonScript("");
     }
 
     void reset() {
@@ -49,7 +51,7 @@ namespace settings {
         setSSID(WIFI_SSID);
         setPassword(WIFI_PASSWORD);
         setChannel(WIFI_CHANNEL);
-        setChannel(WIFI_MODE);
+        setWiFiMode(WIFI_MODE);
     }
 
     void save() {
@@ -71,6 +73,9 @@ namespace settings {
         s += "\n";
         s += "autorun=";
         s += getAutorun();
+        s += "\n";
+        s += "buttonScript=";
+        s += getButtonScript();
         s += "\n";
         s += "wifi_mode=";
         s += getWiFiMode();
@@ -104,6 +109,10 @@ namespace settings {
         return data.autorun;
     }
 
+    const char* getButtonScript() {
+        return data.buttonscript;
+    }
+
     void set(const char* name, const char* value) {
         if (strcmp(name, "ssid") == 0) {
             setSSID(value);
@@ -113,6 +122,8 @@ namespace settings {
             setChannel(value);
         } else if (strcmp(name, "autorun") == 0) {
             setAutorun(value);
+        } else if (strcmp(name, "buttonscript") == 0) {
+            setButtonScript(value);
         } else if (strcmp(name, "wifi_mode") == 0) {
             setWiFiMode(value);
         }
@@ -158,6 +169,15 @@ namespace settings {
         if (autorun) {
             memset(data.autorun, 0, 65);
             strncpy(data.autorun, autorun, 64);
+
+            save();
+        }
+    }
+
+    void setButtonScript(const char* buttonscript) {
+        if (buttonscript) {
+            memset(data.buttonscript, 0, 65);
+            strncpy(data.buttonscript, buttonscript, 64);
 
             save();
         }

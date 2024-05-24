@@ -10,6 +10,7 @@
 #include "cli.h"
 #include "USB.h"
 #include "led.h"
+#include "button.h"
 
 
 void setup() {
@@ -22,11 +23,18 @@ void setup() {
     cli::begin();
     webserver::begin();
     led::begin();
+    button::begin();
 
     duckscript::run(settings::getAutorun());
 }
 
 void loop() {
     webserver::update();
+    if (button::isPressed()) {
+        duckscript::run(settings::getButtonScript());
+        while(duckscript::isRunning()) {
+            
+        }
+    }
     debug_update();
 }

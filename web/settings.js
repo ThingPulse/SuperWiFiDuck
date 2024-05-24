@@ -11,12 +11,14 @@ function load_settings() {
     var password = lines[1].split("=")[1];
     var channel = lines[2].split("=")[1];
     var autorun = lines[3].split("=")[1];
-    var wifimode = lines[4].split("=")[1];
+    var buttonscript = lines[4].split("=")[1];
+    var wifimode = lines[5].split("=")[1];
 
     E("ssid").innerHTML = ssid;
     E("password").innerHTML = password;
     E("channel").innerHTML = channel;
     E("autorun").innerHTML = autorun;
+    E("buttonscript").innerHTML = buttonscript;
     E("edit_wifi_mode").value = wifimode;
   });
 }
@@ -81,6 +83,12 @@ window.addEventListener("load", function() {
 
   E("disable_autorun").onclick = function() {
     ws_send("set autorun \"\"", function(msg) {
+      load_settings();
+    });
+  };
+
+  E("disable_buttonscript").onclick = function() {
+    ws_send("set buttonscript \"\"", function(msg) {
       load_settings();
     });
   };

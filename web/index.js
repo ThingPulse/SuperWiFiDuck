@@ -216,6 +216,10 @@ function autorun(fileName) {
   ws_send("set autorun \"" + fixFileName(fileName) + "\"", log_ws);
 }
 
+function buttonScript(fileName) {
+  ws_send("set buttonscript \"" + fixFileName(fileName) + "\"", log_ws);
+}
+
 // ! Write content to file
 function write(fileName, content) {
   stop(fileName);
@@ -306,6 +310,11 @@ window.addEventListener("load", function() {
   E("editorAutorun").onclick = function() {
     if (confirm("Run this script automatically on startup?\nYou can disable it in the settings."))
       autorun(get_editor_filename());
+  }
+
+  E("editorButtonScript").onclick = function() {
+    if (confirm("Run this script when the button is pressed?\nYou can disable it in the settings."))
+      buttonScript(get_editor_filename());
   }
 
   // ! Make all <code>s append to the editor when clicked

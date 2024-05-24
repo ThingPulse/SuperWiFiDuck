@@ -21,6 +21,7 @@ namespace settings {
     const char* getChannel();
     const char* getAutorun();
     const char* getWiFiMode();
+    const char* getButtonScript();
 
     int getChannelNum();
 
@@ -31,4 +32,5 @@ namespace settings {
     void setChannel(const char* channel);
     void setAutorun(const char* autorun);
     void setWiFiMode(const char* wifimode);
+    void setButtonScript(const char* script);
 }
