@@ -233,11 +233,8 @@ The `web/` folder contains all `.html`, `.css`, `.js` files.
 You can edit and test them locally as long as you're connected to the WiFi Duck
 network thanks to the websocket connection handled by JavaScript in the background.  
 
-To get the new files onto the ESP8266, run `python3 webconverter.py` in the
-repository folder.  
-It gzips all files inside `web/`, converts them into a hex array
-and saves it in `esp_duck/webfiles.h`.  
-Now you just need to [flash](#flash-software) the ESP8266 again.  
+The files in the `web/` folder are listed in `platformio.ini` and linked into the firmware
+binary.
 
 
 ### Change Keyboard Identifier
