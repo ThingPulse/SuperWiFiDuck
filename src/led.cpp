@@ -48,6 +48,28 @@ namespace led {
         led.show();
     }
 }
+#elif defined(FASTLED)
+#include <FastLED.h>
+
+CRGB leds[FASTLED_NUM];
+namespace led {
+    void begin() {
+        FastLED.addLeds<WS2812B, FASTLED_PIN, GRB>(leds, FASTLED_NUM);
+        Serial.println("LEDs initialized");
+        leds[0] = CRGB::Green;
+        FastLED.show();
+    }
+
+    void setColor(int r, int g, int b) {
+        Serial.println("Setting color");
+        
+        for (size_t i = 0; i < FASTLED_NUM; i++) {
+            leds[i].setRGB(r, g, b);
+        }
+
+        FastLED.show();
+    }
+}
 
 #elif defined(LED_RGB)
 

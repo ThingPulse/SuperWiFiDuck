@@ -9,6 +9,7 @@
 #include "settings.h"
 #include "cli.h"
 #include "USB.h"
+#include "led.h"
 
 
 void setup() {
@@ -20,6 +21,7 @@ void setup() {
     settings::begin();
     cli::begin();
     webserver::begin();
+    led::begin();
 
     duckscript::run(settings::getAutorun());
 }
