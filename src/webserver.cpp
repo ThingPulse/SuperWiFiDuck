@@ -24,7 +24,6 @@ void reply(AsyncWebServerRequest* request, int code, const char* type, const uin
     AsyncWebServerResponse* response =
         request->beginResponse_P(code, type, data, len);
 
-    response->addHeader("Content-Encoding", "gzip");
     request->send(response);
 }
 
