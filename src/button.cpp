@@ -18,8 +18,14 @@ namespace button {
 
     bool isPressed() { 
         if (isButtonPressed) {
-            isButtonPressed = false;
-            return true;
+            if (touchInterruptGetLastStatus(TOUCH_PIN)) {
+                Serial.println(" --- T1 Touched");
+                return false;
+            } else {
+                Serial.println(" --- T1 Released");
+                isButtonPressed = false;
+                return true;
+            }
         }
         return false;
     }
