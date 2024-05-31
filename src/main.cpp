@@ -12,11 +12,17 @@
 #include "led.h"
 #include "button.h"
 
+#include "led.h"
+#include <USB.h>
+#include <USBHIDMouse.h>
 
 void setup() {
     debug_init();
     duckparser::beginKeyboard();
+    duckparser::beginMouse();
+    duckparser::beginConsumerControl();
     USB.begin();
+
     delay(200);
     spiffs::begin();
     settings::begin();

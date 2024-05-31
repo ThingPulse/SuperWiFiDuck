@@ -287,4 +287,13 @@
 #define KEY_MEDIA_REFRESH 0xfa
 #define KEY_MEDIA_CALC 0xfb
 
+#define KEY_VOLUMEUP 0x80
+#define KEY_VOLUMEDOWN 0x81
+#define KEY_MUTE 0x7f
+#define KEY_PLAY 0xe8
+#define KEY_PAUSE 0xe8
+#define KEY_STOP 0xe9
+#define KEY_NEXT 0xea
+#define KEY_PREV 0xeb
+
 #endif // USB_HID_KEYS

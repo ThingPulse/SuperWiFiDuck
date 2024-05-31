@@ -13,4 +13,6 @@ namespace duckparser {
     int getRepeats();
     unsigned int getDelayTime();
     void beginKeyboard();
+    void beginMouse();
+    void beginConsumerControl();
 };

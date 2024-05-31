@@ -6,6 +6,7 @@
 namespace button {
   
     boolean isButtonPressed = false;
+    boolean isTouched = false;
 
     void begin() {
         touchAttachInterrupt(TOUCH_PIN, touchCallback, TOUCH_THRESHOLD);
@@ -18,12 +19,15 @@ namespace button {
 
     bool isPressed() { 
         if (isButtonPressed) {
-            if (touchInterruptGetLastStatus(TOUCH_PIN)) {
+            bool lastStatus = touchInterruptGetLastStatus(TOUCH_PIN);
+            if (!isTouched && lastStatus) {
                 Serial.println(" --- T1 Touched");
+                isTouched = true;
                 return false;
-            } else {
+            } else if (isTouched && !lastStatus) {
                 Serial.println(" --- T1 Released");
                 isButtonPressed = false;
+                isTouched = false;
                 return true;
             }
         }

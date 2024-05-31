@@ -10,6 +10,9 @@
 #include "debug.h"
 #include "keyboard.h"
 #include "led.h"
+#include <USB.h>
+#include <USBHIDMouse.h>
+#include <USBHIDConsumerControl.h>
 
 extern "C" {
  #include "parser.h" // parse_lines1
@@ -34,21 +37,36 @@ namespace duckparser {
     unsigned long sleepTime      = 0;
 
     HIDKeyboard keyboard;
+    USBHIDMouse mouse;
+    USBHIDConsumerControl consumerControl;
 
 
     void beginKeyboard() {
       keyboard.begin();
     };
 
+    void beginMouse() {
+     mouse.begin();
+    };
+
+    void beginConsumerControl() {
+      consumerControl.begin();
+    };
+
     void type(const char* str, size_t len) {
         keyboard.write(str, len);
+    }
+
+    void pressConsumer(uint8_t key) {
+        consumerControl.press(key);
+        consumerControl.release();
     }
 
     void press(const char* str, size_t len) {
         // character
 
         //
-        ESP_LOGI("","%s", str);
+        debugf("Pressed: %s", str);
 
         if (len == 1) keyboard.press(str);
 
@@ -87,6 +105,7 @@ namespace duckparser {
         else if (compare1(str, len, "PRINTSCREEN", CASE_SENSETIVE)) keyboard.pressKey(KEY_SYSRQ);
         else if (compare1(str, len, "SCROLLLOCK", CASE_SENSETIVE)) keyboard.pressKey(KEY_SCROLLLOCK);
 
+
         // NUMPAD KEYS
         else if (compare1(str, len, "NUM_0", CASE_SENSETIVE)) keyboard.pressKey(KEY_KP0);
         else if (compare1(str, len, "NUM_1", CASE_SENSETIVE)) keyboard.pressKey(KEY_KP1);
@@ -104,6 +123,30 @@ namespace duckparser {
         else if (compare1(str, len, "NUM_DOT", CASE_SENSETIVE)) keyboard.pressKey(KEY_KPDOT);
         else if (compare1(str, len, "NUM_PLUS", CASE_SENSETIVE)) keyboard.pressKey(KEY_KPPLUS);
 
+        // Consumer Control Buttons
+        else if (compare1(str, len, "PLAYPAUSE", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_PLAY_PAUSE);
+        else if (compare1(str, len, "STOP", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_STOP);
+        else if (compare1(str, len, "NEXTTRACK", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_SCAN_NEXT);
+        else if (compare1(str, len, "PREVTRACK", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_SCAN_PREVIOUS);
+        else if (compare1(str, len, "VOLUME_MUTE", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_MUTE);
+        else if (compare1(str, len, "VOLUME_UP", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_VOLUME_INCREMENT);
+        else if (compare1(str, len, "VOLUME_DOWN", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_VOLUME_DECREMENT);
+        else if (compare1(str, len, "BRIGHTNESS_UP", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_BRIGHTNESS_INCREMENT);
+        else if (compare1(str, len, "BRIGHTNESS_DOWN", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_BRIGHTNESS_DECREMENT);
+
+        else if (compare1(str, len, "SUSPEND", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_SLEEP);
+        else if (compare1(str, len, "CALCULATOR", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_CALCULATOR);
+        else if (compare1(str, len, "SEARCH", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_SEARCH);
+        else if (compare1(str, len, "HOME", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_HOME);
+        else if (compare1(str, len, "BACK", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_BACK);
+        else if (compare1(str, len, "FORWARD", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_FORWARD);
+        else if (compare1(str, len, "STOP", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_STOP);
+        else if (compare1(str, len, "REFRESH", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_REFRESH);
+        else if (compare1(str, len, "POWER", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_POWER);
+        else if (compare1(str, len, "RESET", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_RESET);
+        else if (compare1(str, len, "SLEEP", CASE_SENSETIVE)) pressConsumer(CONSUMER_CONTROL_SLEEP);
+ 
+
         // Modifiers
         else if (compare1(str, len, "CTRL", CASE_SENSETIVE) || compare1(str, len, "CONTROL", CASE_SENSETIVE)) keyboard.pressModifier(KEY_MOD_LCTRL);
         else if (compare1(str, len, "SHIFT", CASE_SENSETIVE)) keyboard.pressModifier(KEY_MOD_LSHIFT);
@@ -118,10 +161,10 @@ namespace duckparser {
         keyboard.release();
     }
 
-    unsigned int toInt(const char* str, size_t len) {
+    int toInt(const char* str, size_t len) {
         if (!str || (len == 0)) return 0;
 
-        unsigned int val = 0;
+        int val = 0;
 
         // HEX
         if ((len > 2) && (str[0] == '0') && (str[1] == 'x')) {
@@ -137,11 +180,15 @@ namespace duckparser {
         }
         // DECIMAL
         else {
+            int sign = 1;
             for (size_t i = 0; i < len; ++i) {
-                if ((str[i] >= '0') && (str[i] <= '9')) {
+                if (str[i] == '-') {
+                   sign = -1;
+                } else if ((str[i] >= '0') && (str[i] <= '9')) {
                     val = val * 10 + (str[i] - '0');
                 }
             }
+            val = val * sign;
         }
 
         return val;
@@ -280,6 +327,52 @@ namespace duckparser {
                 }
 
                 led::setColor(c[0], c[1], c[2]);
+            }
+
+            // MOUSE MOVEMENT
+            else if (compare1(cmd->str, cmd->len, "MOUSE", CASE_SENSETIVE) || compare1(cmd->str, cmd->len, "MOVE", CASE_SENSETIVE)) {
+                word_node* w = cmd->next;
+
+                int x, y;
+
+                x = toInt(w->str, w->len);
+                w = w->next;
+                y = toInt(w->str, w->len);
+                debugf("Mouse: %d,%d\n", x, y);
+                mouse.move(x, y);
+
+            }
+            // MOUSE CLICK
+            else if (compare1(cmd->str, cmd->len, "CLICK", CASE_SENSETIVE) || compare1(cmd->str, cmd->len, "MOUSE_CLICK", CASE_SENSETIVE)) {
+                word_node* w = cmd->next;
+
+                int b = toInt(w->str, w->len);
+                mouse.click(b);
+            }
+            // MOUSE PRESS
+            else if (compare1(cmd->str, cmd->len, "PRESS", CASE_SENSETIVE) || compare1(cmd->str, cmd->len, "MOUSE_PRESS", CASE_SENSETIVE)) {
+                word_node* w = cmd->next;
+
+                int b = toInt(w->str, w->len);
+                mouse.press(b);
+            }
+            // MOUSE RELEASE
+            else if (compare1(cmd->str, cmd->len, "RELEASE", CASE_SENSETIVE) || compare1(cmd->str, cmd->len, "MOUSE_RELEASE", CASE_SENSETIVE)) {
+                word_node* w = cmd->next;
+
+                int b = toInt(w->str, w->len);
+                mouse.release(b);
+            }
+            // MOUSE SCROLL
+            else if (compare1(cmd->str, cmd->len, "SCROLL", CASE_SENSETIVE) || compare1(cmd->str, cmd->len, "MOUSE_SCROLL", CASE_SENSETIVE)) {
+                word_node* w = cmd->next;
+
+                int x, y;
+
+                x = toInt(w->str, w->len);
+                w = w->next;
+                y = toInt(w->str, w->len);
+                mouse.move(0, 0, y, x);
             }
 
             // KEYCODE

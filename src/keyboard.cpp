@@ -22,7 +22,7 @@ const uint8_t report_descriptor[] {
         0x05, 0x01, //   USAGE_PAGE (Generic Desktop)  // 47
         0x09, 0x06, //   USAGE (Keyboard)
         0xa1, 0x01, //   COLLECTION (Application)
-        0x85, 0x02, //   REPORT_ID (2)
+        0x85, 0x01, //   REPORT_ID (1)
         0x05, 0x07, //   USAGE_PAGE (Keyboard)
 
         0x19, 0xe0, //   USAGE_MINIMUM (Keyboard LeftControl)
@@ -89,9 +89,11 @@ void HIDKeyboard::onEvent(arduino_usb_hid_keyboard_event_t event, esp_event_hand
 }
 
 void HIDKeyboard::_onOutput(uint8_t report_id, const uint8_t* buffer, uint16_t len){
+    Serial.println(report_id, HEX);
     if(report_id == HID_REPORT_ID_KEYBOARD){
         arduino_usb_hid_keyboard_event_data_t p;
         p.leds = buffer[0];
+        
         arduino_usb_event_post(ARDUINO_USB_HID_KEYBOARD_EVENTS, ARDUINO_USB_HID_KEYBOARD_LED_EVENT, &p, sizeof(arduino_usb_hid_keyboard_event_data_t), portMAX_DELAY);
     }
 }
@@ -213,7 +215,6 @@ uint8_t HIDKeyboard::press(const char* strPtr) {
                 return res-1;
             }
         }
-
         return 0;
 }
 
@@ -228,7 +229,7 @@ void HIDKeyboard::send(report* k) {
         debug(String(prev_report.modifiers, HEX));
         debugln("]");
 #endif // ENABLE_DEBUG
-        hid.SendReport(2, (uint8_t*)k, sizeof(report));
+        hid.SendReport(1, (uint8_t*)k, sizeof(report));
 }
 
 
