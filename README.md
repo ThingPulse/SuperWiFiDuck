@@ -118,7 +118,11 @@ It's compatible to Ducky Script, which was developed by the wonderful people at 
 | `LOCALE` | `LOCALE DE` | Sets the keyboard layout. [List](#translate-keyboard-layout) |
 | `KEYCODE` | `KEYCODE 0x02 0x04` | Types a specific key code (modifier, key1[, ..., key6]) in decimal or hexadecimal |
 | `LED` | `LED 40 20 10` |Changes the color of the LED in decimal RGB values (0-255) |
-| `MOUSE` | `MOUSE 40 -30` |Moves the mouse 40 pixels to the right and 30 pixels up |
+| `MOUSE` | `MOUSE 40 -30` |Moves the mouse cursor 40 pixels to the right and 30 pixels up |
+| `CLICK` or `MOUSE_CLICK` | `MOUSE_CLICK 1` |Simulates a mouse left click (Left: 1, right: 2, middle: 4, back: 8, forward: 16, all: 31) |
+| `PRESS` or `MOUSE_PRESS` | `MOUSE_PRESS 2` |Simulates a mouse right press (Left: 1, right: 2, middle: 4, back: 8, forward: 16, all: 31) |
+| `RELEASE` or `MOUSE_RELEASE` | `MOUSE_RELEASE 4` |Simulates a mouse forward release (Left: 1, right: 2, middle: 4, back: 8, forward: 16, all: 31) |
+| `SCROLL` or `MOUSE_SCROLL` | `MOUSE_SCROLL 0 10` |Simulates a usage of the mouse wheel by 10 pixels vertically |
 
 ### Standard Keys
 
