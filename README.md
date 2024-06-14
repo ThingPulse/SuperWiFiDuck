@@ -118,6 +118,7 @@ It's compatible to Ducky Script, which was developed by the wonderful people at 
 | `LOCALE` | `LOCALE DE` | Sets the keyboard layout. [List](#translate-keyboard-layout) |
 | `KEYCODE` | `KEYCODE 0x02 0x04` | Types a specific key code (modifier, key1[, ..., key6]) in decimal or hexadecimal |
 | `LED` | `LED 40 20 10` |Changes the color of the LED in decimal RGB values (0-255) |
+| `MOUSE` | `MOUSE 40 -30` |Moves the mouse 40 pixels to the right and 30 pixels up |
 
 ### Standard Keys
 
@@ -161,6 +162,32 @@ It's compatible to Ducky Script, which was developed by the wonderful people at 
 | `NUMLOCK` |
 | `PRINTSCREEN` |
 | `SCROLLLOCK` |
+
+### Consumer Control
+
+| Key |
+| --- |
+| `PLAYPAUSE` |
+| `STOP` |
+| `NEXTTRACK` |
+| `PREVTRACK` |
+| `VOLUME_MUTE` |
+| `VOLUME_UP` |
+| `VOLUME_DOWN` |
+| `BRIGHTNESS_UP` |
+| `BRIGHTNESS_DOWN` |
+| `SUSPEND` |
+| `CALCULATOR` |
+| `SEARCH` |
+| `HOME` |
+| `BACK` |
+| `FORWARD` |
+| `STOP` |
+| `REFRESH` |
+| `POWER` |
+| `RESET` |
+| `SLEEP` |
+
 
 ### Numpad Keys
 

@@ -117,6 +117,7 @@ code {
 	word-break: keep-all !important;
 	color: #000;
 	line-height: 24px;
+	cursor: copy;
 }
 
 .terminal {
@@ -163,6 +164,7 @@ code {
 
 .code {
   	font-family: "Courier New", Courier, monospace;
+	cursor: copy;
 }
 
 .reload {

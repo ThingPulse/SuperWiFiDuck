@@ -89,7 +89,6 @@ void HIDKeyboard::onEvent(arduino_usb_hid_keyboard_event_t event, esp_event_hand
 }
 
 void HIDKeyboard::_onOutput(uint8_t report_id, const uint8_t* buffer, uint16_t len){
-    Serial.println(report_id, HEX);
     if(report_id == HID_REPORT_ID_KEYBOARD){
         arduino_usb_hid_keyboard_event_data_t p;
         p.leds = buffer[0];

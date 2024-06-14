@@ -38,7 +38,7 @@ function fixFileName(fileName) {
 
 // ===== DOM Manipulation ===== //
 function status(mode) {
-  current_status = mode;
+  current_status = mode + "XXX";
 
   if (mode == "connected") {
     E("status").style.backgroundColor = "#3c5";
@@ -114,11 +114,16 @@ function ws_update_status() {
 function ws_init() {
   status("connecting...");
 
-  ws = new WebSocket("ws://" + location.host + "/ws");
+  if (location.host == "127.0.0.1:5500") {
+    ws = new WebSocket("ws://192.168.0.209/ws");
+  } else {
+    ws = new WebSocket("ws://" + location.host + "/ws");
+  }
+
 
   ws.onopen = function(event) {
-    log_ws("connected");
-    status("connected");
+    log_ws("connecting");
+    status("connecting");
 
     ws_send("close", log_ws, true);
     ws_send("version", set_version);
