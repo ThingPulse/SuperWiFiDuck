@@ -4,11 +4,11 @@
 <img alt="WiFi Duck Logo" src="img/thumbnail.jpg" width="640">
 </p>
 
-This project upgrades from WiFi Duck and utilizes the native USB function of ESP32 S2/3 chip. As a result, you can run WiFi Duck with a default module below 10$, and no special hardware work is required.
+This project upgrades from WiFi Duck and utilizes the native USB function of ESP32 S/3 chip. It further containes specific adaptations
+for the [ThingPulse Pendrive S3](https://thingpulse.com/product/esp32-s3-pendrive-s3-128mb/)
 
-ESP32 S2/3 can emulate multiple USB devices at the same time. So I want to add USB mouse and USB disk function in the future. But it depends on how much time/money I have.
-
-Please help me to build more projects! [paypal](https://www.paypal.com/donate/?business=UZAK3WFV233ML&no_recurring=0&item_name=Help+me+build+more+project%21&currency_code=USD)
+![ThingPulse Pendrive S3](img/pendrive-s3.jpg)
+![ThingPulse Pendrive S3](img/pendrive-s3-back.jpg)
 
 Please read the install and flash parts below. They are different from the original project. 
 
