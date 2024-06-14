@@ -184,6 +184,7 @@ namespace webserver {
         dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
         dnsServer.start(53, URL, apIP);
 
+        MDNS.begin(HOSTNAME);
         MDNS.addService("http", "tcp", 80);
 
         // Websocket

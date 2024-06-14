@@ -36,6 +36,7 @@
 
 #define HOSTNAME "wifiduck"
 #define URL "wifi.duck"
+#define MDNS_NAME "wifi.duck"
 
 
 
