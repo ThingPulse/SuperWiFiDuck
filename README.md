@@ -1,9 +1,5 @@
 # Super WiFi Duck
 
-<p align="center">
-<img alt="WiFi Duck Logo" src="img/thumbnail.jpg" width="640">
-</p>
-
 This project upgrades from WiFi Duck and utilizes the native USB function of ESP32 S/3 chip. It further containes specific adaptations
 for the [ThingPulse Pendrive S3](https://thingpulse.com/product/esp32-s3-pendrive-s3-128mb/)
 
@@ -82,14 +78,11 @@ under Tools in the Arduino IDE.
 
 If you have further questions, check out the [issue section](https://github.com/spacehuhn/WiFiDuck/issues).  
 
-## Flash ESP32 S2/S3
+## Flash ThingPulse Pendrive S3
 
 1. Install PlatformIO
-2. modify platformio.ini if needed
-3. `pio run -e esp32-s3-devkitc-1 -t upload` for esp32s3 ; 
-   `pio run -e esp32-s2-kaluga-1 -t upload` for esp32s2
-
-4. see Usage part   
+2. `pio run -e thingpulse-pendrive-s3 -t upload`
+3. See usage chapters   
 
 ## Scripting
 
