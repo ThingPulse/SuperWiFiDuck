@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "app": {
+    "id": "super-wifi-duck",
+    "name": "SuperWifiDuck",
+    "description": "Wi-Fi controlled USB HID device for running Ducky Script payloads on the ThingPulse Pendrive S3.",
+    "supportedDevices": [
+      "super-wifi-duck"
+    ],
+    "tags": [
+      "wifi",
+      "security"
+    ],
+    "icon": "logo.png"
+  },
+  "release": {
+    "partitions": [
+      {
+        "name": "firmware",
+        "asset": "app-firmware.bin",
+        "offset": "0x0000",
+        "source": ".pio/build/thingpulse-pendrive-s3/app-firmware.bin"
+      }
+    ]
+  },
+  "releaseAssets": [
+    {
+      "asset": "logo.png",
+      "source": "img/logo.png"
+    }
+  ]
+}

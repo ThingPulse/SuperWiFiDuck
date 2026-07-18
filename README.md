@@ -383,6 +383,52 @@ ENTER
 This tool is intended to be used for testing, training, and educational purposes only.  
 Never use it to do harm or create damage!  
 
+## ESP App Market releases
+
+The production firmware targets the ThingPulse Pendrive S3 (`ESP32-S3`) and is built with PlatformIO:
+
+```bash
+pio run -e thingpulse-pendrive-s3
+```
+
+The build creates `.pio/build/thingpulse-pendrive-s3/app-firmware.bin`, a complete image for flashing at `0x0000`. It contains the bootloader at `0x0000`, partition table at `0x8000`, and application at `0x10000`. Web files are embedded in the application, so no separate filesystem or `boot_app0` image is required.
+
+Generate and validate the release files locally:
+
+```bash
+python3 scripts/app_market.py generate --output dist/app-market.json --assets-dir dist
+python3 scripts/app_market.py validate --manifest dist/app-market.json --assets-dir dist
+python3 -m unittest test.test_app_market
+```
+
+The generator takes the version from an exact `v*` Git tag when available, otherwise from `src/config.h`. It calculates the final binary checksum and refuses missing artifacts, invalid values, checksum mismatches, and overlapping flash ranges.
+
+To publish a snapshot after updating `VERSION` and committing the release changes:
+
+```bash
+git tag -a v1.2.0-rc.1 -m "SuperWifiDuck 1.2.0-rc.1"
+git push origin v1.2.0-rc.1
+```
+
+To publish a stable release:
+
+```bash
+git tag -a v1.2.0 -m "SuperWifiDuck 1.2.0"
+git push origin v1.2.0
+```
+
+SemVer `alpha`, `beta`, and `rc` tags are created as GitHub prereleases and imported by the ESP App Market as snapshots. Tags without a prerelease suffix become normal GitHub releases and are imported into the stable catalog.
+
+If an erroneous prerelease has already been pushed, remove the GitHub prerelease first, then remove its remote and local tag before creating a corrected tag. Confirm the tag name carefully:
+
+```bash
+gh release delete v1.2.0-rc.1 --yes
+git push origin :refs/tags/v1.2.0-rc.1
+git tag -d v1.2.0-rc.1
+```
+
+Prefer a new prerelease number such as `v1.2.0-rc.2` if the erroneous release may already have been imported or consumed.
+
 The continuation of this project counts on you!  
 
 ## License
