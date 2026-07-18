@@ -23,6 +23,8 @@ SEMVER_RE = re.compile(
 )
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 OFFSET_RE = re.compile(r"^0x[0-9a-fA-F]+$")
+APPLICATION_ID = "tp-pendrive-s3-super-wifi-duck"
+SUPPORTED_DEVICE_IDS = ["tp-pendrive-s3"]
 
 
 class ManifestError(ValueError):
@@ -107,45 +109,63 @@ def generate(template_path: Path, output: Path, assets_dir: Path | None, version
     partitions = []
     sizes: dict[str, int] = {}
 
+    if template["app"].get("id") != APPLICATION_ID:
+        raise ManifestError(f"application ID must be {APPLICATION_ID!r}")
+    if template["app"].get("supportedDevices") != SUPPORTED_DEVICE_IDS:
+        raise ManifestError(f"supportedDevices must be {SUPPORTED_DEVICE_IDS!r}")
+
+    if assets_dir:
+        assets_dir = assets_dir.resolve()
+        assets_dir.mkdir(parents=True, exist_ok=True)
+
     for definition in template["release"]["partitions"]:
         source = discover_artifact(definition["source"])
         asset = definition["asset"]
         if Path(asset).name != asset:
             raise ManifestError(f"asset filename must not contain a path: {asset}")
-        sizes[asset] = source.stat().st_size
+        staged = source
+        if assets_dir:
+            staged = assets_dir / asset
+            shutil.copyfile(source, staged)
+        sizes[asset] = staged.stat().st_size
         partitions.append(
             {
                 "name": definition["name"],
                 "asset": asset,
                 "offset": definition["offset"],
-                "sha256": sha256_file(source),
+                "sha256": sha256_file(staged),
             }
         )
-        if assets_dir:
-            assets_dir.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(source, assets_dir / asset)
+
+    icon_definition = template["app"].get("icon")
+    if not isinstance(icon_definition, dict):
+        raise ManifestError("template app.icon must be an object")
+    if set(icon_definition) != {"asset", "source"}:
+        raise ManifestError("template app.icon fields must be asset and source")
+    icon_asset = icon_definition["asset"]
+    if Path(icon_asset).name != icon_asset:
+        raise ManifestError(f"asset filename must not contain a path: {icon_asset}")
+    icon_source = discover_artifact(icon_definition["source"])
+    staged_icon = icon_source
+    if assets_dir:
+        staged_icon = assets_dir / icon_asset
+        shutil.copyfile(icon_source, staged_icon)
 
     validate_ranges(partitions, sizes)
+    app = dict(template["app"])
+    app["icon"] = {"asset": icon_asset, "sha256": sha256_file(staged_icon)}
     manifest = {
         "schemaVersion": template["schemaVersion"],
-        "app": template["app"],
+        "app": app,
         "release": {"version": normalize_version(version), "partitions": partitions},
     }
-
-    if assets_dir:
-        for definition in template.get("releaseAssets", []):
-            source = discover_artifact(definition["source"])
-            asset = definition["asset"]
-            if Path(asset).name != asset:
-                raise ManifestError(f"asset filename must not contain a path: {asset}")
-            shutil.copyfile(source, assets_dir / asset)
 
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return manifest
 
 
-def validate(manifest_path: Path, assets_dir: Path) -> dict:
+def validate(manifest_path: Path, assets_dir: Path, expected_version: str | None = None) -> dict:
     assets_dir = assets_dir.resolve()
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest.get("schemaVersion") != 1:
@@ -155,9 +175,17 @@ def validate(manifest_path: Path, assets_dir: Path) -> dict:
     if not isinstance(app, dict) or not isinstance(release, dict):
         raise ManifestError("manifest must contain app and release objects")
     required_app = {"id", "name", "description", "supportedDevices", "tags", "icon"}
-    if not required_app.issubset(app):
-        raise ManifestError("app object is missing required fields")
-    normalize_version(release.get("version", ""))
+    if set(app) != required_app:
+        raise ManifestError("app object has missing or unexpected fields")
+    if app["id"] != APPLICATION_ID:
+        raise ManifestError(f"application ID must be {APPLICATION_ID!r}")
+    if app["supportedDevices"] != SUPPORTED_DEVICE_IDS:
+        raise ManifestError(f"supportedDevices must be {SUPPORTED_DEVICE_IDS!r}")
+    manifest_version = normalize_version(release.get("version", ""))
+    if expected_version is not None and manifest_version != normalize_version(expected_version):
+        raise ManifestError(
+            f"manifest version {manifest_version!r} does not match tag {normalize_version(expected_version)!r}"
+        )
     partitions = release.get("partitions")
     if not isinstance(partitions, list) or not partitions:
         raise ManifestError("release.partitions must be a non-empty array")
@@ -180,8 +208,28 @@ def validate(manifest_path: Path, assets_dir: Path) -> dict:
             raise ManifestError(f"SHA-256 mismatch for {asset}: expected {partition['sha256']}, got {actual}")
 
     icon = app["icon"]
-    if "://" not in icon:
-        discover_artifact(str(assets_dir / icon))
+    if not isinstance(icon, dict):
+        raise ManifestError("app.icon must be an asset-reference object")
+    if set(icon) != {"asset", "sha256"}:
+        raise ManifestError("app.icon fields must be asset and sha256")
+    icon_asset = icon["asset"]
+    if Path(icon_asset).name != icon_asset:
+        raise ManifestError(f"asset filename must not contain a path: {icon_asset}")
+    if not SHA256_RE.fullmatch(icon["sha256"]):
+        raise ManifestError(f"invalid SHA-256 for {icon_asset}")
+    icon_path = discover_artifact(str(assets_dir / icon_asset))
+    actual_icon_sha = sha256_file(icon_path)
+    if actual_icon_sha != icon["sha256"]:
+        raise ManifestError(
+            f"SHA-256 mismatch for {icon_asset}: expected {icon['sha256']}, got {actual_icon_sha}"
+        )
+
+    expected_assets = {manifest_path.resolve().name, icon_asset, *sizes}
+    staged_assets = {path.name for path in assets_dir.iterdir() if path.is_file()}
+    if staged_assets != expected_assets:
+        raise ManifestError(
+            f"staged release assets must be exactly {sorted(expected_assets)}, got {sorted(staged_assets)}"
+        )
     validate_ranges(partitions, sizes)
     return manifest
 
@@ -197,6 +245,7 @@ def main() -> int:
     validate_parser = subparsers.add_parser("validate")
     validate_parser.add_argument("--manifest", type=Path, default=ROOT / "app-market.json")
     validate_parser.add_argument("--assets-dir", type=Path, required=True)
+    validate_parser.add_argument("--version", help="expected Git tag or normalized version")
     args = parser.parse_args()
 
     try:
@@ -204,7 +253,7 @@ def main() -> int:
             manifest = generate(args.template, args.output, args.assets_dir, args.version or source_version())
             print(f"Generated {args.output} for version {manifest['release']['version']}")
         else:
-            validate(args.manifest, args.assets_dir)
+            validate(args.manifest, args.assets_dir, args.version)
             print(f"Validated {args.manifest}")
     except (KeyError, OSError, json.JSONDecodeError, ManifestError) as error:
         print(f"error: {error}", file=sys.stderr)

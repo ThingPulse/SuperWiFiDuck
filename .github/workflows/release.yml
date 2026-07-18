@@ -46,14 +46,25 @@ jobs:
             --assets-dir dist
 
       - name: Verify release assets
-        run: python scripts/app_market.py validate --manifest dist/app-market.json --assets-dir dist
+        run: |
+          VERSION_ARG="${GITHUB_REF_NAME}"
+          if [[ "${GITHUB_REF_TYPE}" != "tag" ]]; then
+            VERSION_ARG="$(sed -n 's/^#define VERSION "\([^"]*\)"/\1/p' src/config.h)"
+          fi
+          python scripts/app_market.py validate \
+            --manifest dist/app-market.json \
+            --assets-dir dist \
+            --version "${VERSION_ARG}"
 
       - name: Upload workflow-dispatch test artifacts
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
           name: super-wifi-duck-${{ github.run_number }}
-          path: dist/
+          path: |
+            dist/app-market.json
+            dist/app-firmware.bin
+            dist/logo.png
           if-no-files-found: error
 
       - name: Create GitHub release and upload assets
@@ -65,7 +76,10 @@ jobs:
           if [[ "${GITHUB_REF_NAME}" == *-* ]]; then
             PRERELEASE_FLAG="--prerelease"
           fi
-          gh release create "${GITHUB_REF_NAME}" dist/* \
+          gh release create "${GITHUB_REF_NAME}" \
+            dist/app-market.json \
+            dist/app-firmware.bin \
+            dist/logo.png \
             --verify-tag \
             --generate-notes \
             ${PRERELEASE_FLAG}

@@ -11,7 +11,10 @@
       "wifi",
       "security"
     ],
-    "icon": "logo.png"
+    "icon": {
+      "asset": "logo.png",
+      "sha256": "c281c9fb54035e72389251095fee46d583c32846532a2abc452811221332af07"
+    }
   },
   "release": {
     "version": "1.2.0",
