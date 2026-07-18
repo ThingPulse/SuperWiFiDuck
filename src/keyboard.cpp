@@ -245,7 +245,7 @@ void HIDKeyboard::pressKey(uint8_t key, uint8_t modifiers) {
 
 void HIDKeyboard::pressModifier(uint8_t key) {
 
-    ESP_LOGI("", "%s", key);
+    ESP_LOGI("keyboard", "Modifier: 0x%02X", key);
         prev_report.modifiers |= key;
 
         send(&prev_report);
